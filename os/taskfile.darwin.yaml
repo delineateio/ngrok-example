@@ -12,3 +12,8 @@ tasks:
     label: os:darwin:install
     cmds:
       - brew bundle install --file os/brewfile --no-lock
+
+  stop:
+    desc: stops the example service
+    cmds:
+      - kill -9 $(lsof -ti:8000)

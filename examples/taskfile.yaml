@@ -1,0 +1,100 @@
+version: 3
+
+env:
+  PORT: 8000
+  REGION: eu
+  HOSTNAME: hello.delineate.dev
+  OAUTH_PROVIDER: google
+  OAUTH_DOMAIN: delineate.io
+  NGROK_CONFIG_FILE: examples/ngrok.yaml
+
+includes:
+  os: ../os/taskfile.{{OS}}.yaml
+
+tasks:
+
+  token:check:
+    cmds:
+      - pwd
+      - stat $(pwd)/.env
+      # adds token to default config
+      - ngrok config add-authtoken $NGROK_AUTH_TOKEN
+    run: once # only needs to run once
+
+  web:
+    desc: starts an example web service
+    cmds:
+      - python -m http.server $PORT
+    # enable serve:stop to be run without messy error
+    ignore_error: true
+
+  basic:
+    desc: exposes api
+    deps: ["token:check"]
+    cmds:
+      - ngrok http 8000
+
+  # use of customer url this requires configuration of DNS and is a paid feature
+  domain:
+    desc: exposes api on custom domain
+    deps: ["token:check"]
+    cmds:
+      - ngrok http $PORT --region=$REGION --hostname=$HOSTNAME
+
+  # protects using oauth provider and restricts allowed domain
+  oauth:
+    desc: exposes api on custom domain with oauth
+    deps: ["token:check"]
+    cmds:
+      - ngrok http $PORT --region=$REGION --hostname=$HOSTNAME --oauth $OAUTH_PROVIDER --oauth-allow-domain $OAUTH_DOMAIN
+
+  files:
+    desc: starts an example file service
+    deps: ["token:check"]
+    cmds:
+      - ngrok http "file://$(pwd)/examples/files" --region=$REGION --hostname=$HOSTNAME --oauth $OAUTH_PROVIDER --oauth-allow-domain $OAUTH_DOMAIN
+    # enable serve:stop to be run without messy error
+    ignore_error: true
+
+  service:start:
+    desc: exposes api via background service
+    deps: ["token:check"]
+    cmds:
+      - ngrok config check --config $NGROK_CONFIG_FILE
+      - task: token:add
+      - sudo ngrok service install --config $NGROK_CONFIG_FILE
+      - sudo ngrok service start
+
+  service:stop:
+    desc: stops exposing api via background service
+    cmds:
+      - sudo ngrok service stop
+      - sudo ngrok service uninstall
+      - task: token:remove
+    # ignores error if not started
+    ignore_error: true
+
+  token:add:
+    desc: add auth token to config file
+    deps: ["token:check"]
+    cmds:
+      - ngrok config add-authtoken $NGROK_AUTH_TOKEN --config $NGROK_CONFIG_FILE
+
+  token:remove:
+    desc: remove auth token from config file
+    cmds:
+      - awk '!/authtoken/' $NGROK_CONFIG_FILE > /tmp/ngrok && mv /tmp/ngrok $NGROK_CONFIG_FILE
+
+  # defers to an os specific command
+  dashboard:
+    desc: opens ngrok dashboard
+    cmds:
+      - open http://localhost:4040
+
+  # defers to an os specific command
+  kill:
+    desc: stops the example service
+    cmds:
+      - task: os:stop
+    # enable serve:stop to be run without messy error
+    ignore_error: true

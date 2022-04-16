@@ -1,0 +1,12 @@
+version: "2"
+region: eu
+console_ui: false
+tunnels:
+    hello:
+        proto: http
+        addr: 8000
+        hostname: hello.delineate.dev
+        oauth:
+            provider: google
+            allow_domains:
+                - delineate.io

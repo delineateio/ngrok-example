@@ -12,16 +12,14 @@
   <h2 align="center">delineate.io</h2>
   <p align="center">portray or describe (something) precisely.</p>
 
-  <h3 align="center">[PROJECT_TITLE]</h3>
+  <h3 align="center">Ngrok Examples</h3>
 
   <p align="center">
-    [PROJECT_DESCRIPTION]
+    This repo contains some repeatable examples using ngrok to create secure tunnels to expose local endpoints on the internet
     <br />
     <a href="https://github.com/delineateio/ngrok-example"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/delineateio/ngrok-example">View Demo</a>
-    ·
     <a href="https://github.com/delineateio/ngrok-example/issues">Report Bug</a>
     ·
     <a href="https://github.com/delineateio/ngrok-example/issues">Request Feature</a>
@@ -36,9 +34,13 @@
 - [About The Project](#about-the-project)
 - [Built With](#built-with)
 - [Getting Started](#getting-started)
-  - [Local Dependencies](#local-dependencies)
   - [Local Setup](#local-setup)
-- [Usage](#usage)
+- [Usage Examples](#usage-examples)
+  - [Auth Token](#auth-token)
+  - [Standard Examples](#standard-examples)
+    - [Custom Domain Setup](#custom-domain-setup)
+  - [File Examples](#file-examples)
+  - [Agent Examples](#agent-examples)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
@@ -49,44 +51,68 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://delineate.io)
-The repo description should be added here and describe at least:
-
-* Purpose of the repo e.g. problem/opportunity statement
-* High level description of the overall approach/solution
+This repo was created to experiment with [ngrok](https://dashboard.ngrok.com/) to better understand it's functionality and use cases.  It is not meant to be a replica of the official documentation :laughing:.
 
 ## Built With
 
-Further logos can be inserted to highlight the specific technologies used to create the solution from [here](https://github.com/Ileriayo/markdown-badges).
-
-| Syntax | Description |
-| --- | ----------- |
-| ![pre-commit](https://img.shields.io/badge/precommit-%235835CC.svg?style=for-the-badge&logo=precommit&logoColor=white) | Pre-commit `git` hooks that perform checks before pushes|
-| ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white) | Source control management platform  |
+![pre-commit](https://img.shields.io/badge/precommit-%235835CC.svg?style=for-the-badge&logo=precommit&logoColor=white)
+![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
 To get a local copy up and running follow these simple steps.
 
-### Local Dependencies
-
-A number of local dependencies are required.  To review the local dependencies run `task dependencies:list`.  If new local dependencies then they should be added to the correct Taskfile in `./os` e.g. `taskfile.darwin.yaml`.
-
-> Note that currently only `macOS` is configured and a PR should be submitted if either `Linux` or `Windows` are required.
-
 ### Local Setup
 
-This repo follows the principle of minimal manual setup of the local development environment.
-
- A `task` target has been provided for simplicity ```task init```, the `taskfile.yaml` file can be inspected for more details.
+This repo follows the principle of minimal manual setup of the local development environment.  A `task` target has been provided for simplicity ```task init```, the `taskfile.yaml` file can be inspected for more details.
 
 <!-- USAGE EXAMPLES -->
-## Usage
+## Usage Examples
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+### Auth Token
 
-_For more examples, please refer to the [Documentation](https://example.com)._
+To use `ngrok` you must have a valid authentication token.  If you need to create an account you can follow the simple sign up steps at [ngrok.com/signup](https://dashboard.ngrok.com/signup).  Once you have a token it must be added to `.env` using `NGROK_AUTH_TOKEN=[YOUR TOKEN]`.
+
+### Standard Examples
+
+To use the following examples you must first start the simple n on-production web server using `task example:web`, which starts on port `8000`
+
+| Example | Task | Description |
+| --- | --- | --- |
+| basic | `task example:basic` | This example exposes the website running at `localhost:8000` on a non-stable grok generated sub-domain.|
+| domain | `task example:domain` | This example exposes the website using a custom pre-owned domain.  See below for more details . |
+| oauth | `task example:oauth` | This example exposes the website on a custom domain and secures authentication using an OAuth provider (e.g. Google) |
+
+Once you have finished with these examples you can stop the web server using `task example:kill`.
+
+#### Custom Domain Setup
+
+To setup a custom domain follow the instructions at [ngrok domains](https://dashboard.ngrok.com/cloud-edge/domains).  This will include setup within your domain registrar.
+
+### File Examples
+
+This example shows ngrok being used to run a file server.
+
+| Example | Task | Description |
+| --- | --- | --- |
+| File | `task example:files` | This example serves the files that are located in [examples/files](examples/files). |
+
+### Agent Examples
+
+`ngrok` can be run as a background service, this example uses a configuration file [ngrok.yaml](examples/ngrok.yaml) and enables the configured `ngrok` tunnels.  For simplicity this example mirrors the tunnel created using `task example:oauth`.
+
+The ngrok auth token must be written to the config file.  To reduce the risk committing secret with `git` the following commands add and remove the token from the config file.
+
+```shell
+# starts the configured tunnels
+task example:service:start
+
+# stops the configured tunnels
+task example:service:stop
+```
+
+> Also note that as the following commands manage `xxx` services they require admin privileges and therefore will likely need a password to be entered.
 
 <!-- ROADMAP -->
 ## Roadmap

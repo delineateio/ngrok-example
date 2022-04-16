@@ -1,6 +1,6 @@
 .vscode/
 
-*.env
 *.todo
 .DS_Store
 Brewfile.lock.json
+.env
