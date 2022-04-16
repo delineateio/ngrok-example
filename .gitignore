@@ -2,5 +2,5 @@
 
 *.todo
 .DS_Store
-Brewfile.lock.json
 .env
+ngrok.processed.yaml

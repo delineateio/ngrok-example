@@ -7,18 +7,25 @@ env:
   OAUTH_PROVIDER: google
   OAUTH_DOMAIN: delineate.io
   NGROK_CONFIG_FILE: examples/ngrok.yaml
+  FINAL_NGROK_CONFIG_FILE: examples/ngrok.processed.yaml
 
 includes:
   os: ../os/taskfile.{{OS}}.yaml
 
 tasks:
 
-  token:check:
+  token:
     cmds:
       - pwd
       - stat $(pwd)/.env
-      # adds token to default config
+      # adds to default config file
       - ngrok config add-authtoken $NGROK_AUTH_TOKEN
+      # this copies the config file and add the token
+      # the final file is excluded in the .gitignore file
+      # to ensure that the token is not committed remotely
+      - cp $NGROK_CONFIG_FILE $FINAL_NGROK_CONFIG_FILE
+      - ngrok config add-authtoken $NGROK_AUTH_TOKEN --config $FINAL_NGROK_CONFIG_FILE
+
     run: once # only needs to run once
 
   web:
@@ -30,27 +37,27 @@ tasks:
 
   basic:
     desc: exposes api
-    deps: ["token:check"]
+    deps: ["token"]
     cmds:
       - ngrok http 8000
 
   # use of customer url this requires configuration of DNS and is a paid feature
   domain:
     desc: exposes api on custom domain
-    deps: ["token:check"]
+    deps: ["token"]
     cmds:
       - ngrok http $PORT --region=$REGION --hostname=$HOSTNAME
 
   # protects using oauth provider and restricts allowed domain
   oauth:
     desc: exposes api on custom domain with oauth
-    deps: ["token:check"]
+    deps: ["token"]
     cmds:
       - ngrok http $PORT --region=$REGION --hostname=$HOSTNAME --oauth $OAUTH_PROVIDER --oauth-allow-domain $OAUTH_DOMAIN
 
   files:
     desc: starts an example file service
-    deps: ["token:check"]
+    deps: ["token"]
     cmds:
       - ngrok http "file://$(pwd)/examples/files" --region=$REGION --hostname=$HOSTNAME --oauth $OAUTH_PROVIDER --oauth-allow-domain $OAUTH_DOMAIN
     # enable serve:stop to be run without messy error
@@ -58,11 +65,10 @@ tasks:
 
   service:start:
     desc: exposes api via background service
-    deps: ["token:check"]
+    deps: ["token"]
     cmds:
-      - ngrok config check --config $NGROK_CONFIG_FILE
-      - task: token:add
-      - sudo ngrok service install --config $NGROK_CONFIG_FILE
+      - ngrok config check --config $FINAL_NGROK_CONFIG_FILE
+      - sudo ngrok service install --config $FINAL_NGROK_CONFIG_FILE
       - sudo ngrok service start
 
   service:stop:
@@ -70,20 +76,8 @@ tasks:
     cmds:
       - sudo ngrok service stop
       - sudo ngrok service uninstall
-      - task: token:remove
     # ignores error if not started
     ignore_error: true
-
-  token:add:
-    desc: add auth token to config file
-    deps: ["token:check"]
-    cmds:
-      - ngrok config add-authtoken $NGROK_AUTH_TOKEN --config $NGROK_CONFIG_FILE
-
-  token:remove:
-    desc: remove auth token from config file
-    cmds:
-      - awk '!/authtoken/' $NGROK_CONFIG_FILE > /tmp/ngrok && mv /tmp/ngrok $NGROK_CONFIG_FILE
 
   # defers to an os specific command
   dashboard:

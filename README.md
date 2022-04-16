@@ -12,7 +12,7 @@
   <h2 align="center">delineate.io</h2>
   <p align="center">portray or describe (something) precisely.</p>
 
-  <h3 align="center">Ngrok Examples</h3>
+  <h3 align="center">Using ngrok Examples</h3>
 
   <p align="center">
     This repo contains some repeatable examples using ngrok to create secure tunnels to expose local endpoints on the internet
@@ -34,11 +34,9 @@
 - [About The Project](#about-the-project)
 - [Built With](#built-with)
 - [Getting Started](#getting-started)
-  - [Local Setup](#local-setup)
 - [Usage Examples](#usage-examples)
-  - [Auth Token](#auth-token)
+  - [Auth Token for `ngrok`](#auth-token-for-ngrok)
   - [Standard Examples](#standard-examples)
-    - [Custom Domain Setup](#custom-domain-setup)
   - [File Examples](#file-examples)
   - [Agent Examples](#agent-examples)
 - [Roadmap](#roadmap)
@@ -61,22 +59,24 @@ This repo was created to experiment with [ngrok](https://dashboard.ngrok.com/) t
 <!-- GETTING STARTED -->
 ## Getting Started
 
-To get a local copy up and running follow these simple steps.
-
-### Local Setup
-
 This repo follows the principle of minimal manual setup of the local development environment.  A `task` target has been provided for simplicity ```task init```, the `taskfile.yaml` file can be inspected for more details.
 
 <!-- USAGE EXAMPLES -->
 ## Usage Examples
 
-### Auth Token
+### Auth Token for `ngrok`
 
-To use `ngrok` you must have a valid authentication token.  If you need to create an account you can follow the simple sign up steps at [ngrok.com/signup](https://dashboard.ngrok.com/signup).  Once you have a token it must be added to `.env` using `NGROK_AUTH_TOKEN=[YOUR TOKEN]`.
+To use `ngrok` you must have a valid authentication token.  If you need to create an account get an auth token you should follow the simple sign up steps at [ngrok.com/signup](https://dashboard.ngrok.com/signup).
+
+Once you have a token it must be added to `.env` using `NGROK_AUTH_TOKEN=[YOUR TOKEN]`.
 
 ### Standard Examples
 
-To use the following examples you must first start the simple n on-production web server using `task example:web`, which starts on port `8000`
+To use the following examples you must first start the simple non-production web server using `task example:web` command, this will start serving a "hello, world!" website on `http://localhost:8000`.
+
+For the `domain` & `oauth` examples you will need to register custom domain on the `ngrok` edge platform follow the instructions at [ngrok domains](https://dashboard.ngrok.com/cloud-edge/domains), as part of this it will be necessary to to setup DNS entries in your domain registrar.
+
+Once this is running you can use the following commands to start an `ngrok` tunnel.
 
 | Example | Task | Description |
 | --- | --- | --- |
@@ -84,11 +84,7 @@ To use the following examples you must first start the simple n on-production we
 | domain | `task example:domain` | This example exposes the website using a custom pre-owned domain.  See below for more details . |
 | oauth | `task example:oauth` | This example exposes the website on a custom domain and secures authentication using an OAuth provider (e.g. Google) |
 
-Once you have finished with these examples you can stop the web server using `task example:kill`.
-
-#### Custom Domain Setup
-
-To setup a custom domain follow the instructions at [ngrok domains](https://dashboard.ngrok.com/cloud-edge/domains).  This will include setup within your domain registrar.
+Once you have finished with each example you can stop the web server using `task example:kill` to stop the web server.
 
 ### File Examples
 
@@ -100,9 +96,9 @@ This example shows ngrok being used to run a file server.
 
 ### Agent Examples
 
-`ngrok` can be run as a background service, this example uses a configuration file [ngrok.yaml](examples/ngrok.yaml) and enables the configured `ngrok` tunnels.  For simplicity this example mirrors the tunnel created using `task example:oauth`.
+`ngrok` can also be run as a background service, this example uses a configuration file [ngrok.yaml](examples/ngrok.yaml) and enables the configured `ngrok` tunnels.  For simplicity this example mirrors the tunnel created using `task example:oauth`.  This is a great way to run multiple tunnels easily.
 
-The ngrok auth token must be written to the config file.  To reduce the risk committing secret with `git` the following commands add and remove the token from the config file.
+The ngrok auth token must be written to the config file.  To reduce the risk committing secret with `git` the `ngrok.yaml` file is copied to `ngrok.processed.yaml` and the token added to `ngrok.processed.yaml`, while `ngrok.processed.yaml` is excluded via `.gitignore`.
 
 ```shell
 # starts the configured tunnels
@@ -112,7 +108,7 @@ task example:service:start
 task example:service:stop
 ```
 
-> Also note that as the following commands manage `xxx` services they require admin privileges and therefore will likely need a password to be entered.
+> Also note that the above commands will require admin privileges and therefore it's highly likely that you will need to enter your password to complete these tasks.
 
 <!-- ROADMAP -->
 ## Roadmap
