@@ -33,17 +33,3 @@ repos:
       name: check yaml
     - id: check-json
       name: check json
-
-- repo: https://github.com/syntaqx/git-hooks
-  rev: v0.0.17
-  hooks:
-  - id: circleci-config-validate
-    name: circleci validation
-
-- repo: https://github.com/gruntwork-io/pre-commit
-  rev: v0.1.17
-  hooks:
-    - id: terraform-fmt
-      name: terraform linting
-    - id: terraform-validate
-      name: terraform validation

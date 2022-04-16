@@ -11,4 +11,4 @@ tasks:
     desc: install local brew requirements
     label: os:darwin:install
     cmds:
-      - brew bundle install --file os/brewfile
+      - brew bundle install --file os/brewfile --no-lock

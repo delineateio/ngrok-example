@@ -2,8 +2,6 @@ version: 3
 
 env:
   PYTHON_VERSION: 3.9.1
-  TERRAFORM_VERSION:
-    sh: cat .terraform-version
   CURRENT_NAME:
     sh: cat .python-version
   REQUIRED_NAME:
@@ -12,8 +10,6 @@ env:
 
 includes:
   os: ./os/taskfile.{{OS}}.yaml
-  cloud: ./ops/taskfile.cloud.yaml
-  local: ./ops/taskfile.local.yaml
 
 tasks:
   init:
@@ -26,7 +22,6 @@ tasks:
       - task: pip:install
       - task: pre-commit:init
       - task: pre-commit:run
-      - task: terraform:install
 
   dependencies:list:
     desc: list local dependencies
@@ -84,8 +79,3 @@ tasks:
     desc: runs all pre-commit hooks
     cmds:
       - pre-commit run --all-files
-
-  terraform:install:
-    desc: install required terraform version
-    cmds:
-      - tfenv install $TERRAFORM_VERSION
