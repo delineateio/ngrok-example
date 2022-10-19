@@ -3,4 +3,5 @@
 *.todo
 .DS_Store
 .env
+.dccache
 ngrok.processed.yaml

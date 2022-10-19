@@ -158,4 +158,3 @@ Distributed under the MIT License. See `LICENSE` for more information.
 [issues-url]: https://github.com/delineateio/ngrok-example/issues
 [license-shield]: https://img.shields.io/github/license/delineateio/ngrok-example.svg?style=for-the-badge&logo=github
 [license-url]: https://github.com/delineateio/ngrok-example/blob/master/LICENSE
-[product-screenshot]: https://github.com/delineateio/.github/blob/master/assets/screenshot.png?raw=true
